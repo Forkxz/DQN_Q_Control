@@ -33,17 +33,16 @@ class Env( object):
         sx = np.mat([[0, 1], [1, 0]], dtype=complex)
         sz = np.mat([[1, 0], [0, -1]], dtype=complex)
 
-        U = np.matrix(np.identity(2, dtype=complex)) 
+        # U = np.matrix(np.identity(2, dtype=complex)) 
         
         H =  J *float(action)/(self.n_actions-1)* sz + 1 * sx
         U = expm(-1j * H * self.dt) 
 
 
         psi = U * psi  # final state
-
         target = np.mat([[0], [1]], dtype=complex) 
-
         err = 1 - (np.abs(psi.H * target) ** 2).item(0).real  
+        # err = sum(abs(psi-target)).item(0)
         rwd = 10 * (err<0.5)+100 * (err<0.1)+5000*(err < 10e-3)   
 
         done =( (err < 10e-3) or self.nstep>=np.pi/self.dt ) 

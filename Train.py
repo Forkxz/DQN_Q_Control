@@ -6,8 +6,6 @@ import argparse
 import torch.optim as optim
 
 def train(hyp, env):
-
-    # device = torch.device('cpu')   
     
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     policy_net = DQN(env.n_actions, env.n_features).to(device)
@@ -24,7 +22,7 @@ def train(hyp, env):
     for episode in range(hyp.epsilon_max):
         state = env.reset()
 
-        while True:
+        for i in range(hyp.N):
             action = choose_action(policy_net,state.to(device),epsilon,env.n_actions)
             next_state, reward, done, fid = env.step(action)
             memory.push(state, action, next_state, reward)
@@ -70,36 +68,34 @@ def train(hyp, env):
 
             state = next_state
             step +=1
-            if episode > hyp.epsilon_max-10:
-                fid_10 = max(fid_10,fid)
-
-            if (env.n_actions != 2) and (step%20 ==0):
-                
-                break
-            print('\r', step, end='', flush=True)        
+            # print('\r', step, end='', flush=True)        
             if done:
                 break
 
+        if episode > hyp.epsilon_max-10:
+            fid_10 = max(fid_10,fid)
 
-    return fid_10
+
+    return fid_10,policy_net
     
     
 if __name__ == "__main__":
 
     parser = argparse.ArgumentParser()
     parser.add_argument('--epsilon_max', type=int, default=500, help='epsilon max number, larger number will lead to better result ')
-    parser.add_argument('--learning_rate', type=float, default=0.1)
+    parser.add_argument('--learning_rate', type=float, default=0.01)
     parser.add_argument('--reward_decay', type=float, default=0.9)
     parser.add_argument('--e_greedy', type=float, default=0.99)
     parser.add_argument('--replace_target_iter', type=int, default=200)
     parser.add_argument('--memory_size', type=int, default=2000)
     parser.add_argument('--batch_size', type=int, default=32)
+    parser.add_argument('--N', type=int, default=20)
     parser.add_argument('--e_greedy_increment', type=float, default=0.001)
     parser.add_argument('--multibit',default=False, help='use multibit control if true')
     hyp = parser.parse_args()
          
     env = MultiBit() if hyp.multibit else Env(action_space=list(range(2)),dt=np.pi/20) 
-    fidelity = train(hyp, env)
+    fidelity,_ = train(hyp, env)
 
     print("Final_fidelity=", fidelity)
         
