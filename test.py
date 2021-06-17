@@ -29,10 +29,19 @@ def plot_N(N,F,real,img):
     pz = np.cos(-img*np.pi)
 
     plt.figure(2, figsize = (6, 6))
+    plt.title('FIG-3b')
     subplot3d = plt.subplot(111, projection='3d')
     subplot3d.scatter(px,py,pz,s= 40,c='r')
     subplot3d.plot3D(px,py,pz,c='red',linewidth=4)    #绘制空间曲线
     subplot3d.plot_wireframe(x, y, z, rstride=5, cstride=5 , linewidth=1,color= 'gray')
+
+    plt.figure(3, figsize = (6, 6))
+    plt.title('FIG-3a')
+    plt.xlabel('N')
+    plt.ylabel('J')
+    plt.ylim(-1.2,1.2)
+    
+    plt.plot(real,marker='o')
 
     plt.show()
 
